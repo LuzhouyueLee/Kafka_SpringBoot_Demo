@@ -1,7 +1,6 @@
 package com.lydia;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,34 +11,48 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 创建单-生产者，双消费者Demo
  * @author: Lydia Lee
  * @date: 2023/3/03
  */
 @SpringBootApplication
 @RestController
+@Slf4j
 public class KafkaDemoApplication {
-
-    private final Logger logger = LoggerFactory.getLogger(KafkaDemoApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(KafkaDemoApplication.class, args);
     }
 
     @Autowired
-    private KafkaTemplate<Object, Object> template;
+    private KafkaTemplate<Object, Object> kafkaTemplate;
 
+    /**
+     * 单-生产者
+     * @param input
+     */
     @GetMapping("/send/{input}")
-    public void sendFoo(@PathVariable String input) {
-        this.template.send("topic_hello", input);
+    public void receiveAndSendToKafka(@PathVariable String input) {
+        //生产者，把收到的消息用KafkaTemplate发出去
+        //
+        this.kafkaTemplate.send("topic_hello", input);
     }
 
+    /**
+     * 消费者1
+     * @param input
+     */
     @KafkaListener(id = "rest1", topics = "topic_hello")
     public void listen1(String input) {
-        logger.info("Kafka Lister1 gets value: {}", input);
+        log.info("Kafka Consumer1 gets value: {}", input);
     }
 
+    /**
+     * 消费者2
+     * @param input
+     */
     @KafkaListener(id = "rest2", topics = "topic_hello")
     public void listen2(String input) {
-        logger.info("Kafka Lister2 gets value: {}", input);
+        log.info("Kafka Consumer2 gets value: {}", input);
     }
 }
