@@ -33,8 +33,13 @@ public class KafkaDemoApplication {
         this.template.send("topic_hello", input);
     }
 
-    @KafkaListener(id = "rest", topics = "topic_hello")
-    public void listen(String input) {
-        logger.info("Kafka Lister gets value: {}", input);
+    @KafkaListener(id = "rest1", topics = "topic_hello")
+    public void listen1(String input) {
+        logger.info("Kafka Lister1 gets value: {}", input);
+    }
+
+    @KafkaListener(id = "rest2", topics = "topic_hello")
+    public void listen2(String input) {
+        logger.info("Kafka Lister2 gets value: {}", input);
     }
 }
